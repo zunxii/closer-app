@@ -73,10 +73,10 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
                 <Link
-                  href="/request-access"
+                  href="/login"
                   className="flex-1 border border-gray-300 text-gray-900 px-8 py-3 text-sm font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors rounded-lg"
                 >
-                  Get Access
+                  Log in
                 </Link>
               </div>
             </div>
