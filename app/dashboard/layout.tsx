@@ -12,6 +12,7 @@ import {
   X,
   Home,
 } from "lucide-react";
+import { SignOutButton, UserButton } from "@clerk/nextjs";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -112,9 +113,12 @@ export default function DashboardLayout({ children }: LayoutProps) {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center space-x-4">
+            <div className="flex justify-between w-full items-center space-x-4">
               <span className="text-sm text-gray-600 font-medium">
                 Internal Tools
+              </span>
+              <span className="text-sm text-gray-600 font-medium flex gap-10">
+                <UserButton showName/>
               </span>
             </div>
           </div>

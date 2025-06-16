@@ -1,32 +1,49 @@
 "use client";
 import Link from "next/link";
 import { Mail, Send, Users, ArrowRight } from "lucide-react";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 export default function HomePage() {
+  const { isSignedIn, isLoaded } = useUser()
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold text-gray-900">Closer</h1>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/login"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/request-access"
-                className="bg-black text-white px-4 py-2 text-sm font-medium hover:bg-gray-800 transition-colors rounded-lg"
-              >
-                Request access
-              </Link>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <h1 className="text-xl font-semibold text-gray-900">Closer</h1>
+          
+          <div className="flex items-center space-x-4">
+            {!isLoaded ? (
+              // Loading state
+              <div className="animate-pulse flex items-center space-x-4">
+                <div className="h-4 bg-gray-200 rounded w-16"></div>
+                <div className="h-8 bg-gray-200 rounded w-24"></div>
+              </div>
+            ) : isSignedIn ? (
+              // Signed in: Show UserButton
+              <UserButton showName />
+            ) : (
+              // Not signed in: Show login and request access
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/request-access"
+                  className="bg-black text-white px-4 py-2 text-sm font-medium hover:bg-gray-800 transition-colors rounded-lg"
+                >
+                  Request access
+                </Link>
+              </>
+            )}
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* Main content */}
       <main className="flex-1">
@@ -49,7 +66,7 @@ export default function HomePage() {
               {/* Auth buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-sm mx-auto">
                 <Link
-                  href="/login"
+                  href="/dashboard"
                   className="flex-1 bg-black text-white px-8 py-3 text-sm font-medium hover:bg-gray-800 transition-colors rounded-lg flex items-center justify-center"
                 >
                   Dashboard
