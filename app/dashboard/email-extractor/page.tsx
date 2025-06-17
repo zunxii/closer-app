@@ -83,7 +83,7 @@ export default function InstagramLinkProcessor() {
                 Instagram Links
               </label>
               <textarea
-                className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm font-mono placeholder-gray-400"
+                className="w-full h-40 p-4 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm font-mono placeholder-gray-400"
                 placeholder="https://www.instagram.com/username1/
 https://www.instagram.com/username2/
 https://www.instagram.com/username3/"
@@ -92,7 +92,7 @@ https://www.instagram.com/username3/"
                 disabled={loading}
               />
               {links && (
-                <div className="flex items-center text-xs text-gray-500">
+                <div className="flex items-center text-xs text-black">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   {linkCount} link{linkCount !== 1 ? 's' : ''} detected
                 </div>
