@@ -9,6 +9,7 @@ import {
   Users,
   Settings,
   Menu,
+  Upload,
   X,
   Home,
 } from "lucide-react";
@@ -21,6 +22,7 @@ interface LayoutProps {
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Email Extractor", href: "/dashboard/email-extractor", icon: Mail },
+  { name: "transcription", href: "/dashboard/transcription", icon: Upload },
   { name: "Bulk Sender", href: "/dashboard/bulk-sender", icon: Send },
   { name: "Contacts", href: "/dashboard/contact", icon: Users },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -49,7 +51,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200">
-            <Link 
+            <Link
               href="/"
               className="text-xl font-semibold text-gray-900 hover:text-gray-700 transition-colors"
             >
@@ -118,7 +120,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 Internal Tools
               </span>
               <span className="text-sm text-gray-600 font-medium flex gap-10">
-                <UserButton showName/>
+                <UserButton showName />
               </span>
             </div>
           </div>

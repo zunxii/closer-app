@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Activity,
   ArrowUpRight,
+  Upload,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -37,18 +38,20 @@ export default function DashboardPage() {
       icon: Users,
       href: "/dashboard/contacts",
     },
+    {
+      name: "Video Transcription",
+      description: "Upload MP4 files and generate timestamped captions",
+      icon: Upload,
+      href: "/dashboard/transcription",
+    },
   ];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="border-b border-gray-200 pb-6">
-        <h1 className="text-3xl font-light text-gray-900 mb-2">
-          Dashboard
-        </h1>
-        <p className="text-gray-600">
-          Overview of your business operations
-        </p>
+        <h1 className="text-3xl font-light text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-gray-600">Overview of your business operations</p>
       </div>
 
       {/* Stats Grid */}
@@ -85,13 +88,11 @@ export default function DashboardPage() {
           <h2 className="text-xl font-light text-gray-900 mb-1">
             Quick Actions
           </h2>
-          <p className="text-gray-600">
-            Access your most-used tools
-          </p>
+          <p className="text-gray-600">Access your most-used tools</p>
         </div>
 
         <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {quickActions.map((action) => (
               <Link
                 key={action.name}
@@ -140,9 +141,7 @@ export default function DashboardPage() {
                 <p className="text-sm font-medium text-gray-900 mb-1">
                   Email extraction completed
                 </p>
-                <p className="text-xs text-gray-500">
-                  2 minutes ago
-                </p>
+                <p className="text-xs text-gray-500">2 minutes ago</p>
               </div>
               <div className="text-right">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -156,9 +155,7 @@ export default function DashboardPage() {
                 <p className="text-sm font-medium text-gray-900 mb-1">
                   Bulk campaign sent
                 </p>
-                <p className="text-xs text-gray-500">
-                  1 hour ago
-                </p>
+                <p className="text-xs text-gray-500">1 hour ago</p>
               </div>
               <div className="text-right">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -172,9 +169,7 @@ export default function DashboardPage() {
                 <p className="text-sm font-medium text-gray-900 mb-1">
                   Contact list updated
                 </p>
-                <p className="text-xs text-gray-500">
-                  3 hours ago
-                </p>
+                <p className="text-xs text-gray-500">3 hours ago</p>
               </div>
               <div className="text-right">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
