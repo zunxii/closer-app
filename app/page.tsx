@@ -120,11 +120,11 @@ export default function HomePage() {
                     <Users className="w-7 h-7 text-gray-600 group-hover:text-white transition-colors" />
                   </div>
                   <h3 className="text-xl font-medium text-gray-900 mb-3">
-                    Contact Management
+                    Campaigns
                   </h3>
                   <p className="text-gray-600 leading-relaxed">
-                    Comprehensive contact organization and relationship
-                    management tools with advanced search capabilities.
+                    See your all campaigns in one place and add leads to them
+                    easily.
                   </p>
                 </div>
 

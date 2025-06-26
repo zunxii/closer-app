@@ -12,8 +12,9 @@ import {
   Upload,
   X,
   Home,
+  Megaphone,
 } from "lucide-react";
-import { SignOutButton, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,9 +23,9 @@ interface LayoutProps {
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Email Extractor", href: "/dashboard/email-extractor", icon: Mail },
-  { name: "transcription", href: "/dashboard/transcription", icon: Upload },
+  { name: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
   { name: "Bulk Sender", href: "/dashboard/bulk-sender", icon: Send },
-  { name: "Contacts", href: "/dashboard/contact", icon: Users },
+  { name: "Transcription", href: "/dashboard/transcription", icon: Upload },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

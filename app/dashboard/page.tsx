@@ -27,16 +27,16 @@ export default function DashboardPage() {
       href: "/dashboard/email-extractor",
     },
     {
+      name: "Campaign Manager",
+      description: "Track and manage all your outreach campaigns",
+      icon: BarChart3,
+      href: "/dashboard/campaigns",
+    },
+    {
       name: "Bulk Sender",
       description: "Send bulk emails and manage campaigns efficiently",
       icon: Send,
       href: "/dashboard/bulk-sender",
-    },
-    {
-      name: "Contact Manager",
-      description: "Organize and manage your contact database",
-      icon: Users,
-      href: "/dashboard/contacts",
     },
     {
       name: "Video Transcription",
