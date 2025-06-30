@@ -37,7 +37,7 @@ export default function CampaignHeader({
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-800 rounded-md focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-800"
           />
         </div>
         <button
