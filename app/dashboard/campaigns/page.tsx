@@ -57,24 +57,27 @@ export default function CampaignsPage() {
   }, [search, campaigns]);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="px-4 py-10 sm:px-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <h1 className="text-4xl font-bold text-gray-800">Campaigns</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-slate-800">
+          Campaigns
+        </h1>
+
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search campaigns..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 text-black border border-gray-300 rounded-lg bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
       </div>
 
       {loading && (
-        <div className="flex justify-center items-center">
-          <Loader2 className="animate-spin w-6 h-6 text-blue-600" />
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="animate-spin w-6 h-6 text-indigo-600" />
           <span className="ml-2 text-gray-600">Loading campaigns...</span>
         </div>
       )}
@@ -88,7 +91,7 @@ export default function CampaignsPage() {
 
       {!loading && !error && filtered.length === 0 && (
         <p className="text-center text-gray-500 mt-12">
-          No campaigns found with “
+          No campaigns found for “
           <span className="font-semibold">{search}</span>”
         </p>
       )}
@@ -104,14 +107,17 @@ export default function CampaignsPage() {
               <Link
                 key={c.id}
                 href={`/dashboard/campaigns/${c.id}`}
-                className="transition duration-200 transform hover:scale-[1.02]"
+                className="transition duration-200 hover:scale-[1.02]"
               >
-                <div className="bg-white border border-gray-200 rounded-2xl shadow hover:shadow-lg p-5 h-full flex flex-col justify-between">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md p-5 h-full flex flex-col justify-between transition-all">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-800 mb-2 truncate">
+                    <h2 className="text-lg font-semibold text-slate-800 mb-2 truncate">
                       {c.name}
                     </h2>
-                    <Badge variant="outline" className={badgeColor}>
+                    <Badge
+                      variant="outline"
+                      className={`${badgeColor} text-xs px-3 py-1 rounded-full`}
+                    >
                       {statusLabel}
                     </Badge>
                   </div>

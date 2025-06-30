@@ -3,69 +3,49 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
     const API_URL = "https://api.instantly.ai/api/v2/campaigns";
-    const RAW_API_KEY = process.env.INSTANTLY_API_KEY;
-
-    const API_KEY = (RAW_API_KEY || "").trim();
+    const API_KEY = (process.env.INSTANTLY_API_KEY || "").trim();
 
     if (!API_KEY) {
-        console.error("API Key missing in environment variables.");
         return NextResponse.json({ error: "API key missing" }, { status: 500 });
     }
 
+    const headers = {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+    };
+
     try {
-        const { searchParams } = new URL(req.url);
+        const campaigns: any[] = [];
+        let starting_after: string | null = null;
+        let hasMore = true;
 
-        // Extract query params
-        let limit = parseInt(searchParams.get("limit") || "100", 10);
-        const search = searchParams.get("search");
-        const starting_after = searchParams.get("starting_after");
-        const tag_ids = searchParams.get("tag_ids");
+        while (hasMore) {
+            const url = new URL(API_URL);
+            url.searchParams.set("limit", "100");
+            if (starting_after) url.searchParams.set("starting_after", starting_after);
 
-        // Clamp limit between 1 and 100
-        if (isNaN(limit) || limit < 1 || limit > 100) {
-            limit = 100;
-        }
+            const res = await fetch(url.toString(), { headers });
+            const data = await res.json();
 
-        // Construct Instantly API URL
-        const url = new URL(API_URL);
-        url.searchParams.set("limit", limit.toString());
-        if (search) url.searchParams.set("search", search);
-        if (starting_after) url.searchParams.set("starting_after", starting_after);
-        if (tag_ids) url.searchParams.set("tag_ids", tag_ids);
-
-        // Prepare headers
-        const headers = {
-            Authorization: `Bearer ${API_KEY}`,
-            "Content-Type": "application/json",
-        };
-
-        // Make API request
-        const response = await fetch(url.toString(), {
-            method: "GET",
-            headers,
-        });
-
-        // Parse response
-        const data = await response.json();
-
-        // Handle failure
-        if (!response.ok) {
-            if (response.status === 401) {
-                return NextResponse.json(
-                    { error: "Unauthorized - API key may be invalid or expired." },
-                    { status: 401 }
-                );
+            if (!res.ok) {
+                return NextResponse.json({ error: data }, { status: res.status });
             }
-            return NextResponse.json({ error: data }, { status: response.status });
+
+            campaigns.push(...(data.items || []));
+
+            if (data.next_starting_after) {
+                starting_after = data.next_starting_after;
+            } else {
+                hasMore = false;
+            }
         }
 
-        // Success
         return NextResponse.json({
-            items: data.items || [],
-            next_starting_after: data.next_starting_after || null,
+            items: campaigns,
+            total: campaigns.length,
         });
-    } catch (error: any) {
-        console.error("Unexpected error:", error.message || error);
+    } catch (err: any) {
+        console.error("Error fetching campaigns:", err.message || err);
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }
