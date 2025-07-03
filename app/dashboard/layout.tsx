@@ -24,6 +24,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Email Extractor", href: "/dashboard/email-extractor", icon: Mail },
   { name: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
+  { name: "Influencers", href: "/dashboard/influencers", icon: Users },
   { name: "Bulk Sender", href: "/dashboard/bulk-sender", icon: Send },
   { name: "Transcription", href: "/dashboard/transcription", icon: Upload },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },

@@ -16,7 +16,7 @@ export default function DashboardPage() {
     { name: "Emails Extracted", value: "12,345", icon: Mail, change: "+12%" },
     { name: "Campaigns Sent", value: "89", icon: Send, change: "+5%" },
     { name: "Total Contacts", value: "5,678", icon: Users, change: "+8%" },
-    { name: "Success Rate", value: "94%", icon: BarChart3, change: "+2%" },
+    { name: "Influencers", value: "234", icon: Users, change: "+10%" },
   ];
 
   const quickActions = [
@@ -43,6 +43,12 @@ export default function DashboardPage() {
       description: "Upload MP4 files and generate timestamped captions",
       icon: Upload,
       href: "/dashboard/transcription",
+    },
+    {
+      name: "Influencers",
+      description: "Manage and track influencer data with ease",
+      icon: Users,
+      href: "/dashboard/influencers",
     },
   ];
 
@@ -92,14 +98,14 @@ export default function DashboardPage() {
         </div>
 
         <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {quickActions.map((action) => (
               <Link
                 key={action.name}
                 href={action.href}
-                className="block group"
+                className="block group h-full"
               >
-                <div className="p-6 border border-gray-200 rounded-lg hover:border-gray-900 hover:shadow-md transition-all duration-200">
+                <div className="h-full flex flex-col justify-between p-6 border border-gray-200 rounded-lg hover:border-gray-900 hover:shadow-md transition-all duration-200">
                   <div className="flex items-start space-x-4">
                     <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-gray-900 transition-colors">
                       <action.icon className="w-6 h-6 text-gray-600 group-hover:text-white transition-colors" />
@@ -160,6 +166,20 @@ export default function DashboardPage() {
               <div className="text-right">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   1,234 recipients
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-start py-4 border-b border-gray-100 last:border-b-0">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  Influencer data updated
+                </p>
+                <p className="text-xs text-gray-500">Just now</p>
+              </div>
+              <div className="text-right">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  +12 influencers
                 </span>
               </div>
             </div>

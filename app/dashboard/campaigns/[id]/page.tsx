@@ -205,6 +205,9 @@ export default function CampaignDetail() {
     const result = await res.json();
     if (res.ok) {
       setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 2000);
       setRows([{ ...defaultRow }]);
       setSelectedRows(new Set());
     } else {
