@@ -1,30 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
-import { exec } from "child_process";
-import fs from "fs";
-import path from "path";
+// app/api/extract/route.js
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const rawText = body.rawText || "";
-
-  const inputPath = path.resolve("Insta_link_to_username/input.txt");
-  const outputPath = path.resolve("public/usernames.json");
-  const scriptPath = path.resolve("Insta_link_to_username/extract_usernames.py");
-
+export async function POST(req) {
   try {
-    fs.writeFileSync(inputPath, rawText, "utf-8");
-  } catch (err) {
-    return NextResponse.json({ success: false, error: "Failed to write input file" });
-  }
+    const body = await req.json();
+    const rawText = body.rawText || "";
 
-  return new Promise((resolve) => {
-    exec(`python "${scriptPath}" "${inputPath}" "${outputPath}"`, (error, stdout, stderr) => {
-      if (error) {
-        return resolve(
-          NextResponse.json({ success: false, error: stderr || error.message })
-        );
-      }
-      return resolve(NextResponse.json({ success: true, output: stdout }));
+    const lines = rawText.split(/\r?\n/);
+    const usernames = lines.map((line) => {
+      line = line.trim();
+      if (!line) return "";
+
+      const match = line.match(/instagram\.com(?:\/stories)?\/([A-Za-z0-9_.]+)/);
+      if (match) return match[1].toLowerCase();
+
+      if (/^[A-Za-z0-9_.]+$/.test(line)) return line.toLowerCase();
+
+      return "";
     });
-  });
+
+    return Response.json({ success: true, usernames });
+  } catch (err) {
+    return Response.json(
+      { success: false, error: err.message || "Invalid request" },
+      { status: 500 }
+    );
+  }
 }

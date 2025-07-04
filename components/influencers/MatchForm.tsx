@@ -1,10 +1,11 @@
+"use client";
+
 import { useState } from "react";
 import Papa from "papaparse";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Loader2,
   Download,
-  Instagram,
   Search,
   Users,
   Sparkles,
@@ -16,7 +17,7 @@ import MatchResultsTable from "./MatchResultsTable";
 const MatchForm = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [matchedCreators, setMatchedCreators] = useState<any[]>([]);
+  const [matchedCreators, setMatchedCreators] = useState([]);
   const [processingStep, setProcessingStep] = useState("");
 
   const handleSubmit = async () => {
@@ -39,12 +40,11 @@ const MatchForm = () => {
     }
 
     setProcessingStep("Loading username database...");
-    const usernamesRes = await fetch("/usernames.json");
-    const usernames: string[] = await usernamesRes.json();
+    const usernames = result.usernames;
     const inputSet = new Set(usernames.map((u) => u.toLowerCase()));
 
     setProcessingStep("Searching creator database...");
-    let all: any[] = [];
+    let all = [];
     let page = 0;
     const pageSize = 1000;
     while (true) {
@@ -110,7 +110,12 @@ const MatchForm = () => {
             <div className="relative">
               <textarea
                 rows={8}
-                placeholder="Paste Instagram links or usernames here (one per line)&#10;&#10;Examples:&#10;https://instagram.com/username&#10;@username&#10;username"
+                placeholder={`Paste Instagram links or usernames here (one per line)
+
+Examples:
+https://instagram.com/username
+@username
+username`}
                 className="w-full border-2 border-sky-200 rounded-2xl p-6 font-mono text-sm text-black focus:outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100 transition-all duration-300 resize-none bg-gradient-to-br from-white to-sky-50/30 placeholder-gray-500"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -183,7 +188,7 @@ const MatchForm = () => {
           )}
         </div>
 
-        {/* Results Section */}
+        {/* Results Table */}
         {matchedCreators.length > 0 && (
           <div className="mt-8">
             <MatchResultsTable
@@ -192,39 +197,6 @@ const MatchForm = () => {
             />
           </div>
         )}
-
-        {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mt-12">
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-            <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="font-semibold text-black mb-2">Smart Matching</h3>
-            <p className="text-gray-700 text-sm">
-              Advanced algorithms to find exact matches from your input
-            </p>
-          </div>
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-            <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Download className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="font-semibold text-black mb-2">Easy Export</h3>
-            <p className="text-gray-700 text-sm">
-              Download your results as CSV for further analysis
-            </p>
-          </div>
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20">
-            <div className="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="font-semibold text-black mb-2">
-              Comprehensive Data
-            </h3>
-            <p className="text-gray-700 text-sm">
-              Access creator names, contacts, and social links
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
