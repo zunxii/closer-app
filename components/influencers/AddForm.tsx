@@ -14,7 +14,7 @@ import {
   Table,
   Info,
 } from "lucide-react";
-import { Creator } from "./types";
+import { Creator } from "@/types/index";
 import CreatorRow from "./CreatorRow";
 
 // Default empty row
@@ -179,21 +179,21 @@ const AddForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 p-6">
+    <div className="min-h-auto bg-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Table Container */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-sky-500 to-blue-600 p-6">
+        <div className="bg-white rounded-3xl shadow-2xl border-black overflow-hidden mb-8">
+          <div className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-white/20 p-2 rounded-lg">
-                  <Table className="w-5 h-5 text-white" />
+                  <Table className="w-5 h-5 text-black" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">
+                  <h2 className="text-xl font-semibold text-black">
                     Creator Database
                   </h2>
-                  <p className="text-sky-100 text-sm">
+                  <p className="text-gray-800 text-sm">
                     Managing {rows.length} creator{rows.length !== 1 ? "s" : ""}
                   </p>
                 </div>
@@ -203,7 +203,7 @@ const AddForm = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleAddRow}
-                  className="group flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-medium hover:bg-white/30 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="group flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
                   Add Row
@@ -211,7 +211,7 @@ const AddForm = () => {
 
                 <button
                   onClick={handleResetRows}
-                  className="group flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-medium hover:bg-white/30 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="group flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
                   Reset All
@@ -223,12 +223,12 @@ const AddForm = () => {
                   className={`group flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg ${
                     isSubmitting
                       ? "bg-gray-400 text-white cursor-not-allowed"
-                      : "bg-white text-sky-600 hover:bg-gray-50 hover:shadow-xl transform hover:scale-105"
+                      : "bg-white text-black hover:bg-gray-100 hover:shadow-xl transform hover:scale-105"
                   }`}
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                       Submitting...
                     </>
                   ) : (
@@ -240,8 +240,8 @@ const AddForm = () => {
                 </button>
 
                 {addSuccess && (
-                  <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-sm text-green-100 px-4 py-2 rounded-lg border border-green-400/30 shadow-lg animate-pulse">
-                    <CheckCircle className="w-4 h-4 text-green-300" />
+                  <div className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg border border-gray-400 shadow-lg animate-pulse">
+                    <CheckCircle className="w-4 h-4 text-white" />
                     <span className="font-medium text-sm">Success!</span>
                   </div>
                 )}
@@ -252,7 +252,7 @@ const AddForm = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="bg-gradient-to-r from-sky-50 to-blue-50 border-b border-sky-200">
+                <tr className="bg-gray-100 border-b border-gray-400">
                   <th className="px-6 py-4 text-left text-xs font-semibold text-black uppercase tracking-wider">
                     #
                   </th>
@@ -273,7 +273,7 @@ const AddForm = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-sky-100">
+              <tbody className="bg-white divide-y divide-gray-300">
                 {rows.map((row, index) => (
                   <CreatorRow
                     key={index}
@@ -288,17 +288,17 @@ const AddForm = () => {
             </table>
           </div>
 
-          <div className="bg-gradient-to-r from-sky-50 to-blue-50 px-6 py-4 border-t border-sky-200">
+          <div className="bg-gray-100 px-6 py-4 border-t border-gray-400">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-sky-600" />
+                <Info className="w-4 h-4 text-black" />
                 <span className="text-sm text-black font-medium">
                   Pro tip: You can paste data from Excel or Google Sheets
                 </span>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span>Auto-save enabled</span>
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Creator } from "./types";
+import { Creator } from "@/types/index";
 import CreatorRow from "./CreatorRow";
 
 interface Props {
@@ -9,42 +9,42 @@ interface Props {
 
 const AddCreatorsTable = ({ rows, onChange, onRemove }: Props) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-300 overflow-hidden mb-6">
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
-            <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <tr className="bg-black border-b border-gray-400">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                 #
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                 Creator Name
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                 Instagram
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                 Email Address
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                 Contact
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
+          <tbody className="bg-white divide-y divide-gray-300">
             {rows.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}
-                  className="px-6 py-12 text-center text-gray-500"
+                  className="px-6 py-12 text-center text-gray-600"
                 >
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-3">
                       <svg
-                        className="w-6 h-6 text-gray-400"
+                        className="w-6 h-6 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -57,10 +57,10 @@ const AddCreatorsTable = ({ rows, onChange, onRemove }: Props) => {
                         />
                       </svg>
                     </div>
-                    <p className="text-sm font-medium text-gray-900 mb-1">
+                    <p className="text-sm font-medium text-black mb-1">
                       No creators added yet
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       Start by adding your first creator to the list
                     </p>
                   </div>
@@ -74,6 +74,13 @@ const AddCreatorsTable = ({ rows, onChange, onRemove }: Props) => {
                   index={index}
                   onChange={onChange}
                   onRemove={onRemove}
+                  onPaste={function (
+                    e: React.ClipboardEvent<HTMLInputElement>,
+                    rowIndex: number,
+                    colKey: keyof Creator
+                  ): void {
+                    throw new Error("Function not implemented.");
+                  }}
                 />
               ))
             )}
@@ -82,8 +89,8 @@ const AddCreatorsTable = ({ rows, onChange, onRemove }: Props) => {
       </div>
 
       {rows.length > 0 && (
-        <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+        <div className="bg-gray-100 px-6 py-3 border-t border-gray-300">
+          <div className="flex items-center justify-between text-sm text-gray-800">
             <span>Total creators: {rows.length}</span>
             <span className="text-xs">
               Scroll horizontally to view all columns

@@ -95,14 +95,14 @@ const MatchForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 p-6">
+    <div className="min-h-auto bg-white p-6">
       <div className="max-w-4xl mx-auto">
         {/* Main Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-300">
           {/* Input Section */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <Search className="w-5 h-5 text-sky-600" />
+              <Search className="w-5 h-5 text-black" />
               <label className="text-lg font-semibold text-black">
                 Instagram Links & Usernames
               </label>
@@ -114,9 +114,8 @@ const MatchForm = () => {
 
 Examples:
 https://instagram.com/username
-@username
 username`}
-                className="w-full border-2 border-sky-200 rounded-2xl p-6 font-mono text-sm text-black focus:outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100 transition-all duration-300 resize-none bg-gradient-to-br from-white to-sky-50/30 placeholder-gray-500"
+                className="w-full border-2 border-gray-300 rounded-2xl p-6 font-mono text-sm text-black focus:outline-none focus:border-black focus:ring-4 focus:ring-gray-200 transition-all duration-300 resize-none bg-white placeholder-gray-500"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
@@ -131,7 +130,7 @@ username`}
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="group relative bg-gradient-to-r from-sky-600 to-blue-600 text-white px-12 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:hover:scale-100"
+              className="group relative bg-black text-white px-12 py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl hover:bg-gray-800 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:hover:scale-100"
             >
               {loading ? (
                 <span className="flex items-center">
@@ -151,19 +150,19 @@ username`}
           {/* Loading Progress */}
           {loading && (
             <div className="mb-8">
-              <div className="bg-sky-100 rounded-2xl p-6">
+              <div className="bg-gray-100 rounded-2xl p-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-black rounded-full animate-bounce"></div>
                   <div
-                    className="w-2 h-2 bg-sky-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-black rounded-full animate-bounce"
                     style={{ animationDelay: "0.1s" }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-sky-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-black rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></div>
                 </div>
-                <p className="text-center text-sky-700 font-medium">
+                <p className="text-center text-gray-700 font-medium">
                   {processingStep || "Working on your request..."}
                 </p>
               </div>
@@ -173,14 +172,14 @@ username`}
           {/* Success Message */}
           {matchedCreators.length > 0 && !loading && (
             <div className="mb-8">
-              <div className="bg-green-100 border border-green-200 rounded-2xl p-6">
+              <div className="bg-gray-100 border border-gray-300 rounded-2xl p-6">
                 <div className="flex items-center justify-center gap-3 mb-2">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                  <span className="text-xl font-semibold text-green-800">
+                  <CheckCircle className="w-6 h-6 text-black" />
+                  <span className="text-xl font-semibold text-black">
                     Success! Found {matchedCreators.length} matching creators
                   </span>
                 </div>
-                <p className="text-center text-green-700">
+                <p className="text-center text-gray-700">
                   Your matched creators are ready for download and review
                 </p>
               </div>
