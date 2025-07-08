@@ -8,16 +8,17 @@ import {
   Download,
   Search,
   Users,
-  Sparkles,
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
 import MatchResultsTable from "./MatchResultsTable";
+import NoNumberResultsTable from "./NoNumberResultsTable";
 
 const MatchForm = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [matchedCreators, setMatchedCreators] = useState([]);
+  const [creatorsWithNoNumber, setCreatorsWithNoNumber] = useState([]);
   const [processingStep, setProcessingStep] = useState("");
 
   const handleSubmit = async () => {
@@ -59,18 +60,24 @@ const MatchForm = () => {
 
     setProcessingStep("Matching creators...");
     const seen = new Set();
-    const matched = all.filter((creator) => {
+
+    const matched = [];
+    const noNumber = [];
+
+    all.forEach((creator) => {
       const uname = (creator.instagram_username || "").toLowerCase();
-      const valid =
-        inputSet.has(uname) &&
-        creator.contact_no &&
-        creator.contact_no.trim() !== "-" &&
-        !seen.has(uname);
-      if (valid) seen.add(uname);
-      return valid;
+      if (inputSet.has(uname) && !seen.has(uname)) {
+        seen.add(uname);
+        if (creator.contact_no && creator.contact_no.trim() !== "-") {
+          matched.push(creator);
+        } else {
+          noNumber.push(creator);
+        }
+      }
     });
 
     setMatchedCreators(matched);
+    setCreatorsWithNoNumber(noNumber);
     setLoading(false);
     setProcessingStep("");
   };
@@ -97,7 +104,7 @@ const MatchForm = () => {
   return (
     <div className="min-h-auto bg-white p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Main Card */}
+        {/* Input Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-300">
           {/* Input Section */}
           <div className="mb-8">
@@ -147,7 +154,7 @@ username`}
             </button>
           </div>
 
-          {/* Loading Progress */}
+          {/* Loading UI */}
           {loading && (
             <div className="mb-8">
               <div className="bg-gray-100 rounded-2xl p-6">
@@ -170,30 +177,38 @@ username`}
           )}
 
           {/* Success Message */}
-          {matchedCreators.length > 0 && !loading && (
-            <div className="mb-8">
-              <div className="bg-gray-100 border border-gray-300 rounded-2xl p-6">
-                <div className="flex items-center justify-center gap-3 mb-2">
-                  <CheckCircle className="w-6 h-6 text-black" />
-                  <span className="text-xl font-semibold text-black">
-                    Success! Found {matchedCreators.length} matching creators
-                  </span>
+          {(matchedCreators.length > 0 || creatorsWithNoNumber.length > 0) &&
+            !loading && (
+              <div className="mb-8">
+                <div className="bg-gray-100 border border-gray-300 rounded-2xl p-6">
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <CheckCircle className="w-6 h-6 text-black" />
+                    <span className="text-xl font-semibold text-black">
+                      {matchedCreators.length} creators with numbers,{" "}
+                      {creatorsWithNoNumber.length} without
+                    </span>
+                  </div>
+                  <p className="text-center text-gray-700">
+                    Scroll down to see both results
+                  </p>
                 </div>
-                <p className="text-center text-gray-700">
-                  Your matched creators are ready for download and review
-                </p>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
-        {/* Results Table */}
+        {/* Results Tables */}
         {matchedCreators.length > 0 && (
           <div className="mt-8">
             <MatchResultsTable
               matchedCreators={matchedCreators}
               handleDownload={handleDownload}
             />
+          </div>
+        )}
+
+        {creatorsWithNoNumber.length > 0 && (
+          <div className="mt-8">
+            <NoNumberResultsTable creators={creatorsWithNoNumber} />
           </div>
         )}
       </div>

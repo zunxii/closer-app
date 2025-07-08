@@ -1,6 +1,14 @@
 "use client";
 import { useState } from "react";
-import { Instagram, Upload, RotateCcw, Download, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import {
+  Instagram,
+  Upload,
+  RotateCcw,
+  Download,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
 
 export default function InstagramLinkProcessor() {
   const [links, setLinks] = useState("");
@@ -8,8 +16,7 @@ export default function InstagramLinkProcessor() {
   const [loading, setLoading] = useState(false);
 
   const BACKEND_URL =
-    typeof window !== "undefined" &&
-    window.location.hostname.includes("localhost1")
+    typeof window !== "undefined" && window.location.hostname === "localhost"
       ? "http://localhost:8000"
       : "https://instatoemail.onrender.com";
 
@@ -94,7 +101,7 @@ https://www.instagram.com/username3/"
               {links && (
                 <div className="flex items-center text-xs text-black">
                   <CheckCircle className="w-3 h-3 mr-1" />
-                  {linkCount} link{linkCount !== 1 ? 's' : ''} detected
+                  {linkCount} link{linkCount !== 1 ? "s" : ""} detected
                 </div>
               )}
             </div>
@@ -160,9 +167,7 @@ https://www.instagram.com/username3/"
                     <h3 className="text-sm font-medium text-red-800 mb-1">
                       Error occurred
                     </h3>
-                    <p className="text-sm text-red-700">
-                      {result.error}
-                    </p>
+                    <p className="text-sm text-red-700">{result.error}</p>
                   </div>
                 </div>
               </div>
@@ -177,7 +182,8 @@ https://www.instagram.com/username3/"
                         Successfully processed
                       </h3>
                       <p className="text-sm text-green-700">
-                        Your Instagram links have been processed and contact information extracted.
+                        Your Instagram links have been processed and contact
+                        information extracted.
                       </p>
                     </div>
                   </div>
@@ -240,14 +246,19 @@ https://www.instagram.com/username3/"
 
       {/* Help Section */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-3">
-          How to use
-        </h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-3">How to use</h3>
         <div className="space-y-2 text-sm text-gray-600">
-          <p>• Paste Instagram profile URLs in the text area above, one per line</p>
-          <p>• Click "Process Links" to extract contact information from profiles</p>
+          <p>
+            • Paste Instagram profile URLs in the text area above, one per line
+          </p>
+          <p>
+            • Click "Process Links" to extract contact information from profiles
+          </p>
           <p>• Download the results as a CSV file for further analysis</p>
-          <p>• Supported formats: instagram.com/username or instagram.com/username/</p>
+          <p>
+            • Supported formats: instagram.com/username or
+            instagram.com/username/
+          </p>
         </div>
       </div>
     </div>

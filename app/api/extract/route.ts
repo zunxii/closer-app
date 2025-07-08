@@ -12,7 +12,6 @@ export async function POST(req) {
 
       const match = line.match(/instagram\.com(?:\/stories)?\/([A-Za-z0-9_.]+)/);
       if (match) return match[1].toLowerCase();
-
       if (/^[A-Za-z0-9_.]+$/.test(line)) return line.toLowerCase();
 
       return "";
