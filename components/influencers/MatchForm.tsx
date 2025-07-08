@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Papa from "papaparse";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -10,6 +10,7 @@ import {
   Users,
   CheckCircle,
   ArrowRight,
+  XCircle,
 } from "lucide-react";
 import MatchResultsTable from "./MatchResultsTable";
 import NoNumberResultsTable from "./NoNumberResultsTable";
@@ -20,9 +21,25 @@ const MatchForm = () => {
   const [matchedCreators, setMatchedCreators] = useState([]);
   const [creatorsWithNoNumber, setCreatorsWithNoNumber] = useState([]);
   const [processingStep, setProcessingStep] = useState("");
+  const [message, setMessage] = useState("");
+
+  const showMessage = (text: string) => {
+    setMessage(text);
+    setTimeout(() => {
+      setMessage("");
+    }, 2000);
+  };
 
   const handleSubmit = async () => {
-    if (!input.trim()) return alert("Please paste links or usernames.");
+    if (!input.trim()) {
+      showMessage("Please paste links or usernames.");
+      setLoading(false);
+      setProcessingStep("");
+      return;
+    }
+
+    setMatchedCreators([]);
+    setCreatorsWithNoNumber([]);
     setLoading(true);
     setProcessingStep("Extracting usernames...");
 
@@ -34,7 +51,7 @@ const MatchForm = () => {
 
     const result = await res.json();
     if (!result.success) {
-      alert("Script failed: " + result.error);
+      showMessage("Script failed: " + result.error);
       setLoading(false);
       setProcessingStep("");
       return;
@@ -60,7 +77,6 @@ const MatchForm = () => {
 
     setProcessingStep("Matching creators...");
     const seen = new Set();
-
     const matched = [];
     const noNumber = [];
 
@@ -80,6 +96,10 @@ const MatchForm = () => {
     setCreatorsWithNoNumber(noNumber);
     setLoading(false);
     setProcessingStep("");
+
+    if (matched.length === 0 && noNumber.length === 0) {
+      showMessage("No matching creators found.");
+    }
   };
 
   const handleDownload = () => {
@@ -104,9 +124,21 @@ const MatchForm = () => {
   return (
     <div className="min-h-auto bg-white p-6">
       <div className="max-w-4xl mx-auto">
+        {/* Toast Message */}
+        {message && (
+          <div className="mb-4 transition-opacity duration-500 ease-in-out">
+            <div className="flex items-center justify-between px-4 py-3 bg-black text-white rounded-xl shadow-lg">
+              <span className="text-sm">{message}</span>
+              <XCircle
+                className="w-4 h-4 ml-4 cursor-pointer"
+                onClick={() => setMessage("")}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Input Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-300">
-          {/* Input Section */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <Search className="w-5 h-5 text-black" />
