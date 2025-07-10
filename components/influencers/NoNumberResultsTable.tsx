@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Loader2, MailCheck } from "lucide-react";
 import Papa from "papaparse";
 import Toast from "./Toast";
+import { supabase } from "@/lib/supabaseClient";
 
 const BACKEND_URL = "https://instatoemail.onrender.com";
 
@@ -12,6 +13,7 @@ interface Creator {
   instagram_username: string;
   instagram_link: string;
   mail_id?: string;
+  contact_no?: string;
 }
 
 interface Campaign {
@@ -153,20 +155,40 @@ const NoNumberResultsTable = ({
     if (!selectedCampaign) return showToast("⚠️ Please select a campaign.");
     setLoading(true);
     try {
-      const leads = creators
-        .filter((c) => c.mail_id)
-        .map((c) => ({
-          first_name: c.creator_name,
-          email: c.mail_id!,
-          instagram: c.instagram_username,
-        }));
+      const validLeads = creators.filter((c) => c.mail_id);
 
-      if (leads.length === 0) return showToast("⚠️ No valid leads found.");
+      if (validLeads.length === 0) return showToast("⚠️ No valid leads found.");
 
+      // Step 1: Insert all into creators table
+      const { error: insertError } = await supabase.from("creators").insert(
+        validLeads.map((c) => ({
+          creator_name: c.creator_name || null,
+          instagram_username: c.instagram_username,
+          instagram_link: c.instagram_link,
+          mail_id: c.mail_id || null,
+          contact_no: c.contact_no || null,
+        }))
+      );
+
+      if (insertError) {
+        console.error("Supabase insert error:", insertError.message);
+        showToast("❌ Supabase insert failed");
+      } else {
+        console.log("✅ Data inserted into Supabase");
+      }
+
+      // Step 2: Add leads to campaign
       const res = await fetch("/api/add-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ campaign_id: selectedCampaign, leads }),
+        body: JSON.stringify({
+          campaign_id: selectedCampaign,
+          leads: validLeads.map((c) => ({
+            first_name: c.creator_name,
+            email: c.mail_id!,
+            instagram: c.instagram_username,
+          })),
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to add leads");

@@ -80,7 +80,6 @@ const MatchForm = () => {
     const matched = [];
     const noNumber = [];
 
-    // Match from DB
     all.forEach((creator) => {
       const uname = (creator.instagram_username || "").toLowerCase();
       if (inputSet.has(uname) && !seen.has(uname)) {
@@ -88,12 +87,12 @@ const MatchForm = () => {
         if (creator.contact_no && creator.contact_no.trim() !== "-") {
           matched.push(creator);
         } else {
-          noNumber.push(creator);
+          noNumber.push({ ...creator, source: "database" });
         }
       }
     });
 
-    // Add usernames from input that were not found in DB
+    // Add new ones not in DB
     inputSet.forEach((uname) => {
       if (!seen.has(uname)) {
         noNumber.push({
@@ -102,6 +101,7 @@ const MatchForm = () => {
           instagram_link: `https://instagram.com/${uname}`,
           mail_id: "",
           contact_no: "",
+          source: "manual",
         });
       }
     });
