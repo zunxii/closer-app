@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Papa from "papaparse";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -80,6 +80,7 @@ const MatchForm = () => {
     const matched = [];
     const noNumber = [];
 
+    // Match from DB
     all.forEach((creator) => {
       const uname = (creator.instagram_username || "").toLowerCase();
       if (inputSet.has(uname) && !seen.has(uname)) {
@@ -89,6 +90,19 @@ const MatchForm = () => {
         } else {
           noNumber.push(creator);
         }
+      }
+    });
+
+    // Add usernames from input that were not found in DB
+    inputSet.forEach((uname) => {
+      if (!seen.has(uname)) {
+        noNumber.push({
+          instagram_username: uname,
+          creator_name: "",
+          instagram_link: `https://instagram.com/${uname}`,
+          mail_id: "",
+          contact_no: "",
+        });
       }
     });
 
@@ -124,7 +138,6 @@ const MatchForm = () => {
   return (
     <div className="min-h-auto bg-white p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Toast Message */}
         {message && (
           <div className="mb-4 transition-opacity duration-500 ease-in-out">
             <div className="flex items-center justify-between px-4 py-3 bg-black text-white rounded-xl shadow-lg">
@@ -137,7 +150,6 @@ const MatchForm = () => {
           </div>
         )}
 
-        {/* Input Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-300">
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
@@ -164,7 +176,6 @@ username`}
             </div>
           </div>
 
-          {/* Action Button */}
           <div className="flex justify-center mb-8">
             <button
               onClick={handleSubmit}
@@ -186,7 +197,6 @@ username`}
             </button>
           </div>
 
-          {/* Loading UI */}
           {loading && (
             <div className="mb-8">
               <div className="bg-gray-100 rounded-2xl p-6">
@@ -208,7 +218,6 @@ username`}
             </div>
           )}
 
-          {/* Success Message */}
           {(matchedCreators.length > 0 || creatorsWithNoNumber.length > 0) &&
             !loading && (
               <div className="mb-8">
@@ -228,7 +237,6 @@ username`}
             )}
         </div>
 
-        {/* Results Tables */}
         {matchedCreators.length > 0 && (
           <div className="mt-8">
             <MatchResultsTable
