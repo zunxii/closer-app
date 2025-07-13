@@ -4,7 +4,7 @@ import { useState } from "react";
 import Papa from "papaparse";
 import { supabase } from "@/lib/supabaseClient";
 import {
-  Loader2,
+  Loader2,  
   Download,
   Search,
   Users,
@@ -133,7 +133,7 @@ const MatchForm = () => {
     a.download = "matched_creators.csv";
     a.click();
     URL.revokeObjectURL(url);
-  };
+  }; 
 
   return (
     <div className="min-h-auto bg-white p-6">
