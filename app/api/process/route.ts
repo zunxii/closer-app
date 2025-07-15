@@ -6,6 +6,7 @@ export async function POST(request: Request) {
     try {
         const formData = await request.formData();
         const links = formData.getAll("links") as string[];
+
         const cleanedLinks = links.map((link) => link.trim());
 
         const logsDir = path.join(process.cwd(), "logs");
@@ -33,8 +34,6 @@ export async function POST(request: Request) {
         );
 
         let cloudOutput: any = {};
-        let savedCSVContent = "";
-
         if (cloudResponse.ok) {
             cloudOutput = await cloudResponse.json();
 
@@ -44,15 +43,19 @@ export async function POST(request: Request) {
                 const alreadyExists = fs.existsSync(csvPath);
                 if (alreadyExists && fs.readFileSync(csvPath, "utf-8").length > 0) {
                     const lines = csvData.split("\n");
-                    if (lines.length > 1) {
-                        csvData = lines.slice(1).join("\n");
-                    }
+                    // Remove headers if already written
+                    csvData = lines
+                        .filter(
+                            (line: string) =>
+                                !line.toLowerCase().includes("instagram") &&
+                                !line.toLowerCase().includes("email") &&
+                                !line.toLowerCase().includes("first name")
+                        )
+                        .join("\n");
                 }
 
                 fs.appendFileSync(csvPath, csvData + "\n");
                 cloudOutput.csv_path = "/downloads/final_output.csv";
-
-                savedCSVContent = fs.readFileSync(csvPath, "utf-8"); // ✅ Final CSV
             }
         } else {
             cloudOutput = {
@@ -64,7 +67,6 @@ export async function POST(request: Request) {
         return NextResponse.json({
             status: "success",
             data: cleanedLinks,
-            csv_content: savedCSVContent, // ✅ Returning the merged CSV
             cloud_response: cloudOutput,
         });
     } catch (error: any) {

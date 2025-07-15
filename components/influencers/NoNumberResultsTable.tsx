@@ -32,7 +32,6 @@ const NoNumberResultsTable = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -56,7 +55,6 @@ const NoNumberResultsTable = ({
   const extractEmails = async () => {
     setLoading(true);
     try {
-      // 🧹 Clean CSV + logs
       await fetch("/api/reset-csv", { method: "DELETE" });
 
       const instagramLinks = creators
@@ -72,30 +70,27 @@ const NoNumberResultsTable = ({
         throw new Error("No valid Instagram usernames to process.");
       }
 
-      const formData = new FormData();
-      instagramLinks.forEach((link) => formData.append("links", link));
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-      const response = await fetch("/api/process", {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      const batchSize = 20;
+      const batches: string[][] = [];
+      for (let i = 0; i < instagramLinks.length; i += batchSize) {
+        batches.push(instagramLinks.slice(i, i + batchSize));
       }
 
-      const result = await response.json();
-      const csvContent =
-        result.cloud_response?.csv_content ||
-        result.csv_content ||
-        result.data ||
-        "";
+      let csvContent = "";
+
+      for (let i = 0; i < batches.length; i++) {
+        const formData = new FormData();
+        batches[i].forEach((link) => formData.append("links", link));
+
+        const resp = await fetch("/api/process", {
+          method: "POST",
+          headers: i === 0 ? { "x-reset-csv": "true" } : undefined,
+          body: formData,
+        });
+
+        const data = await resp.json();
+        csvContent = data.cloud_response?.csv_content || csvContent;
+      }
 
       if (!csvContent) {
         throw new Error("No CSV content found in response.");
@@ -175,8 +170,6 @@ const NoNumberResultsTable = ({
         console.error("Supabase insert error:", insertError.message);
         showToast("❌ Supabase insert failed");
         return;
-      } else {
-        console.log("✅ Data inserted into Supabase");
       }
 
       const res = await fetch("/api/add-lead", {
@@ -247,7 +240,7 @@ const NoNumberResultsTable = ({
       {emailsExtracted && campaigns.length > 0 && (
         <div className="mb-4 max-w-sm">
           <label className="block mb-1 font-medium text-black">
-            Search & Select Campaign:
+            Select Campaign:
           </label>
           <select
             className="border border-gray-300 text-black rounded px-3 py-2 w-full"
@@ -255,15 +248,11 @@ const NoNumberResultsTable = ({
             onChange={(e) => setSelectedCampaign(e.target.value)}
           >
             <option value="">-- Choose Campaign --</option>
-            {campaigns
-              .filter((c) =>
-                c.name.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </select>
         </div>
       )}
