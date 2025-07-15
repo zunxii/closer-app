@@ -6,8 +6,6 @@ import Papa from "papaparse";
 import Toast from "./Toast";
 import { supabase } from "@/lib/supabaseClient";
 
-const BACKEND_URL = "https://instatoemail.onrender.com";
-
 interface Creator {
   creator_name: string;
   instagram_username: string;
@@ -58,6 +56,9 @@ const NoNumberResultsTable = ({
   const extractEmails = async () => {
     setLoading(true);
     try {
+      // 🧹 Clean CSV + logs
+      await fetch("/api/reset-csv", { method: "DELETE" });
+
       const instagramLinks = creators
         .map((c) => {
           const username = c.instagram_username?.trim();
@@ -77,7 +78,7 @@ const NoNumberResultsTable = ({
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const response = await fetch(`${BACKEND_URL}/process/`, {
+      const response = await fetch("/api/process", {
         method: "POST",
         body: formData,
         signal: controller.signal,
@@ -90,14 +91,15 @@ const NoNumberResultsTable = ({
       }
 
       const result = await response.json();
+      const csvContent =
+        result.cloud_response?.csv_content ||
+        result.csv_content ||
+        result.data ||
+        "";
 
-      let csvContent = "";
-      if (result.csv_content) csvContent = result.csv_content;
-      else if (result.data && typeof result.data === "string")
-        csvContent = result.data;
-      else if (result.cloud_response?.csv_content)
-        csvContent = result.cloud_response.csv_content;
-      else throw new Error("No CSV content found in response");
+      if (!csvContent) {
+        throw new Error("No CSV content found in response.");
+      }
 
       const parsed = Papa.parse(csvContent, {
         header: true,
@@ -106,26 +108,21 @@ const NoNumberResultsTable = ({
 
       const emailMap: Record<string, string> = {};
       for (const row of parsed.data as any[]) {
-        let instagramUrl =
-          row["INSTAGRAM"] ||
-          row["Instagram"] ||
-          row["instagram"] ||
-          row["Instagram Link"] ||
-          "";
-        let username = instagramUrl
-          .toLowerCase()
-          .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
-          .replace(/\/$/, "")
+        let instagramUsername = (row["INSTAGRAM"] || "")
+          .trim()
           .replace(/^@/, "")
-          .trim();
+          .replace(/\/$/, "")
+          .toLowerCase();
+
         const email =
           row["EMAIL"] ||
           row["Email"] ||
           row["email"] ||
           row["Email Address"] ||
           "";
-        if (username && email && email.includes("@")) {
-          emailMap[username] = email;
+
+        if (instagramUsername && email && email.includes("@")) {
+          emailMap[instagramUsername] = email;
         }
       }
 
@@ -152,14 +149,18 @@ const NoNumberResultsTable = ({
   };
 
   const addToCampaign = async () => {
-    if (!selectedCampaign) return showToast("⚠️ Please select a campaign.");
+    if (!selectedCampaign) {
+      return showToast("⚠️ Please select a campaign.");
+    }
+
     setLoading(true);
     try {
       const validLeads = creators.filter((c) => c.mail_id);
 
-      if (validLeads.length === 0) return showToast("⚠️ No valid leads found.");
+      if (validLeads.length === 0) {
+        return showToast("⚠️ No valid leads found.");
+      }
 
-      // Step 1: Insert all into creators table
       const { error: insertError } = await supabase.from("creators").insert(
         validLeads.map((c) => ({
           creator_name: c.creator_name || null,
@@ -173,11 +174,11 @@ const NoNumberResultsTable = ({
       if (insertError) {
         console.error("Supabase insert error:", insertError.message);
         showToast("❌ Supabase insert failed");
+        return;
       } else {
         console.log("✅ Data inserted into Supabase");
       }
 
-      // Step 2: Add leads to campaign
       const res = await fetch("/api/add-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,6 +196,10 @@ const NoNumberResultsTable = ({
 
       showToast("✅ Added to campaign");
       setCampaignSubmitted(true);
+
+      setTimeout(() => {
+        fetch("/api/reset-csv", { method: "DELETE" });
+      }, 3000);
     } catch (err) {
       console.error(err);
       showToast("❌ Failed to add to campaign");

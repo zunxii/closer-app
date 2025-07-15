@@ -14,30 +14,50 @@ export default function InstagramLinkProcessor() {
   const [links, setLinks] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
-  const BACKEND_URL =
-    typeof window !== "undefined" && window.location.hostname === "localhost"
-      ? "http://localhost:8000"
-      : "https://instatoemail.onrender.com";
+  const [extractedCount, setExtractedCount] = useState(0);
+  const [totalLinks, setTotalLinks] = useState(0);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const rawLinks = links.trim().split("\n").filter(Boolean);
     if (rawLinks.length === 0) return;
 
-    const formData = new FormData();
-    rawLinks.forEach((link) => formData.append("links", link));
-
+    setTotalLinks(rawLinks.length);
+    setExtractedCount(0);
     setLoading(true);
     setResult(null);
+    setDownloadUrl(null);
+
+    const batchSize = 20;
+    const batches: string[][] = [];
+    for (let i = 0; i < rawLinks.length; i += batchSize) {
+      batches.push(rawLinks.slice(i, i + batchSize));
+    }
 
     try {
-      const resp = await fetch(`${BACKEND_URL}/process/`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await resp.json();
-      setResult(data);
+      for (let i = 0; i < batches.length; i++) {
+        const formData = new FormData();
+        batches[i].forEach((link: string | Blob) =>
+          formData.append("links", link)
+        );
+
+        const resp = await fetch(`/api/process`, {
+          method: "POST",
+          headers: {
+            ...(i === 0 ? { "x-reset-csv": "true" } : {}),
+          },
+          body: formData,
+        });
+
+        const data = await resp.json();
+        setExtractedCount((prev) => prev + batches[i].length);
+
+        if (data.cloud_response?.csv_path) {
+          setDownloadUrl(data.cloud_response.csv_path);
+        }
+      }
+      setResult({ data: rawLinks });
     } catch (err: any) {
       setResult({ error: err.message });
     } finally {
@@ -48,13 +68,15 @@ export default function InstagramLinkProcessor() {
   const handleReset = () => {
     setLinks("");
     setResult(null);
+    setDownloadUrl(null);
+    setExtractedCount(0);
+    setTotalLinks(0);
   };
 
   const linkCount = links.trim().split("\n").filter(Boolean).length;
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      {/* Header */}
       <div className="border-b border-gray-200 pb-6">
         <div className="flex items-center mb-4">
           <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg mr-4">
@@ -71,7 +93,6 @@ export default function InstagramLinkProcessor() {
         </div>
       </div>
 
-      {/* Main Processing Card */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-light text-gray-900 mb-1">
@@ -84,16 +105,13 @@ export default function InstagramLinkProcessor() {
 
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Input Section */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
                 Instagram Links
               </label>
               <textarea
                 className="w-full h-40 p-4 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm font-mono placeholder-gray-400"
-                placeholder="https://www.instagram.com/username1/
-https://www.instagram.com/username2/
-https://www.instagram.com/username3/"
+                placeholder={`https://www.instagram.com/username1/\nhttps://www.instagram.com/username2/`}
                 value={links}
                 onChange={(e) => setLinks(e.target.value)}
                 disabled={loading}
@@ -106,7 +124,6 @@ https://www.instagram.com/username3/"
               )}
             </div>
 
-            {/* Action Buttons */}
             <div className="flex space-x-4">
               <button
                 type="submit"
@@ -116,7 +133,7 @@ https://www.instagram.com/username3/"
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
+                    Extracting {extractedCount}/{totalLinks}
                   </>
                 ) : (
                   <>
@@ -139,7 +156,6 @@ https://www.instagram.com/username3/"
         </div>
       </div>
 
-      {/* Results Section */}
       {result && (
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">
@@ -173,7 +189,6 @@ https://www.instagram.com/username3/"
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Success Summary */}
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
@@ -189,10 +204,9 @@ https://www.instagram.com/username3/"
                   </div>
                 </div>
 
-                {/* Data Preview */}
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    Extracted Data
+                    Processed Links
                   </h3>
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-96 overflow-auto">
                     <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
@@ -201,8 +215,7 @@ https://www.instagram.com/username3/"
                   </div>
                 </div>
 
-                {/* Download Section */}
-                {result.cloud_response?.csv_path ? (
+                {downloadUrl && (
                   <div className="border-t border-gray-200 pt-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -214,37 +227,27 @@ https://www.instagram.com/username3/"
                         </p>
                       </div>
                       <a
-                        href={`${BACKEND_URL}${result.cloud_response.csv_path}`}
+                        href={downloadUrl}
                         className="inline-flex items-center bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-medium"
                         download
+                        onClick={() => {
+                          setTimeout(() => {
+                            fetch("/api/reset-csv", { method: "DELETE" });
+                          }, 3000); // 3 seconds
+                        }}
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Download CSV
                       </a>
                     </div>
                   </div>
-                ) : result.cloud_response?.error ? (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <AlertCircle className="w-5 h-5 text-yellow-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h3 className="text-sm font-medium text-yellow-800 mb-1">
-                          Download unavailable
-                        </h3>
-                        <p className="text-sm text-yellow-700">
-                          {result.cloud_response.error}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
+                )}
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Help Section */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-3">How to use</h3>
         <div className="space-y-2 text-sm text-gray-600">
