@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import {
   Instagram,
@@ -66,6 +67,9 @@ export default function InstagramLinkProcessor() {
   };
 
   const handleReset = () => {
+    fetch("/api/reset-csv", {
+      method: "DELETE",
+    });
     setLinks("");
     setResult(null);
     setDownloadUrl(null);

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Loader2, MailCheck } from "lucide-react";
 import Papa from "papaparse";
 import Toast from "./Toast";
-import { supabase } from "@/lib/supabaseClient";
 
 interface Creator {
   creator_name: string;
@@ -59,15 +58,20 @@ const NoNumberResultsTable = ({
 
       const instagramLinks = creators
         .map((c) => {
-          const username = c.instagram_username?.trim();
-          if (!username) return null;
-          if (username.startsWith("http")) return username;
-          return `https://www.instagram.com/${username.replace(/^@/, "")}/`;
+          if (c.instagram_link) {
+            return c.instagram_link.trim();
+          }
+          if (c.instagram_username) {
+            return `https://www.instagram.com/${c.instagram_username
+              .replace(/^@/, "")
+              .trim()}/`;
+          }
+          return null;
         })
         .filter((link): link is string => Boolean(link));
 
       if (instagramLinks.length === 0) {
-        throw new Error("No valid Instagram usernames to process.");
+        throw new Error("No valid Instagram links to process.");
       }
 
       const batchSize = 20;
@@ -154,22 +158,6 @@ const NoNumberResultsTable = ({
 
       if (validLeads.length === 0) {
         return showToast("⚠️ No valid leads found.");
-      }
-
-      const { error: insertError } = await supabase.from("creators").insert(
-        validLeads.map((c) => ({
-          creator_name: c.creator_name || null,
-          instagram_username: c.instagram_username,
-          instagram_link: c.instagram_link,
-          mail_id: c.mail_id || null,
-          contact_no: c.contact_no || null,
-        }))
-      );
-
-      if (insertError) {
-        console.error("Supabase insert error:", insertError.message);
-        showToast("❌ Supabase insert failed");
-        return;
       }
 
       const res = await fetch("/api/add-lead", {

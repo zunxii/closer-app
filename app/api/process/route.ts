@@ -1,3 +1,4 @@
+// route.ts for /api/process
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
@@ -8,14 +9,14 @@ export async function POST(request: Request) {
         const links = formData.getAll("links") as string[];
 
         const cleanedLinks = links.map((link) => link.trim());
-
-        const logsDir = path.join(process.cwd(), "logs");
+        const logsDir = path.join("/tmp", "logs");
         fs.mkdirSync(logsDir, { recursive: true });
+
         const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
         const logPath = path.join(logsDir, `input_${timestamp}.txt`);
         fs.appendFileSync(logPath, cleanedLinks.join("\n") + "\n");
 
-        const csvDir = path.join(process.cwd(), "public", "downloads");
+        const csvDir = path.join("/tmp", "downloads");
         fs.mkdirSync(csvDir, { recursive: true });
         const csvPath = path.join(csvDir, "final_output.csv");
 
@@ -43,19 +44,16 @@ export async function POST(request: Request) {
                 const alreadyExists = fs.existsSync(csvPath);
                 if (alreadyExists && fs.readFileSync(csvPath, "utf-8").length > 0) {
                     const lines = csvData.split("\n");
-                    // Remove headers if already written
-                    csvData = lines
-                        .filter(
-                            (line: string) =>
-                                !line.toLowerCase().includes("instagram") &&
-                                !line.toLowerCase().includes("email") &&
-                                !line.toLowerCase().includes("first name")
-                        )
-                        .join("\n");
+                    csvData = lines.filter(
+                        (line: string) =>
+                            !line.toLowerCase().includes("instagram") &&
+                            !line.toLowerCase().includes("email") &&
+                            !line.toLowerCase().includes("first name")
+                    ).join("\n");
                 }
 
                 fs.appendFileSync(csvPath, csvData + "\n");
-                cloudOutput.csv_path = "/downloads/final_output.csv";
+                cloudOutput.csv_path = `/api/download-csv`;
             }
         } else {
             cloudOutput = {
