@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Instagram,
   Upload,
   RotateCcw,
   Download,
@@ -19,8 +18,7 @@ export default function InstagramLinkProcessor() {
   const [totalLinks, setTotalLinks] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const rawLinks = links.trim().split("\n").filter(Boolean);
     if (rawLinks.length === 0) return;
 
@@ -35,6 +33,9 @@ export default function InstagramLinkProcessor() {
     for (let i = 0; i < rawLinks.length; i += batchSize) {
       batches.push(rawLinks.slice(i, i + batchSize));
     }
+
+    let accumulatedCsv = "";
+    let csvHeaders = "";
 
     try {
       for (let i = 0; i < batches.length; i++) {
@@ -57,8 +58,29 @@ export default function InstagramLinkProcessor() {
         if (data.cloud_response?.csv_path) {
           setDownloadUrl(data.cloud_response.csv_path);
         }
+
+        // Handle CSV accumulation
+        if (data.cloud_response?.csv_content) {
+          const csvLines = data.cloud_response.csv_content
+            .split("\n")
+            .filter(Boolean);
+
+          if (i === 0) {
+            // First batch - include headers
+            csvHeaders = csvLines[0];
+            accumulatedCsv = csvLines.join("\n");
+          } else {
+            // Subsequent batches - skip headers and append data
+            const dataLines = csvLines.slice(1);
+            if (dataLines.length > 0) {
+              accumulatedCsv += "\n" + dataLines.join("\n");
+            }
+          }
+        }
       }
-      setResult({ data: rawLinks });
+
+      // Only set result after all batches are processed
+      setResult({ csv: accumulatedCsv });
     } catch (err: any) {
       setResult({ error: err.message });
     } finally {
@@ -79,189 +101,205 @@ export default function InstagramLinkProcessor() {
 
   const linkCount = links.trim().split("\n").filter(Boolean).length;
 
+  // Colorful Instagram Icon Component
+  const InstagramIcon = () => (
+    <div className="w-8 h-8 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-400 rounded-lg flex items-center justify-center">
+      <svg
+        className="w-5 h-5 text-white"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+      </svg>
+    </div>
+  );
+
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="border-b border-gray-200 pb-6">
-        <div className="flex items-center mb-4">
-          <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg mr-4">
-            <Instagram className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-light text-gray-900">
-              Instagram Link Processor
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Extract contact information from Instagram profiles
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-light text-gray-900 mb-1">
-            Process Links
-          </h2>
-          <p className="text-gray-600 text-sm">
-            Paste Instagram profile links below, one per line
-          </p>
-        </div>
-
-        <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Instagram Links
-              </label>
-              <textarea
-                className="w-full h-40 p-4 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none text-sm font-mono placeholder-gray-400"
-                placeholder={`https://www.instagram.com/username1/\nhttps://www.instagram.com/username2/`}
-                value={links}
-                onChange={(e) => setLinks(e.target.value)}
-                disabled={loading}
-              />
-              {links && (
-                <div className="flex items-center text-xs text-black">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  {linkCount} link{linkCount !== 1 ? "s" : ""} detected
-                </div>
-              )}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="space-y-6 max-w-4xl mx-auto px-4">
+        {/* Header */}
+        <div className="text-center pb-6">
+          <div className="flex items-center justify-center mb-4">
+            <div className="p-3 bg-white rounded-xl mr-4 shadow-sm">
+              <InstagramIcon />
             </div>
-
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                className="flex-1 flex items-center justify-center py-3 px-6 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                disabled={loading || !links.trim()}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Extracting {extractedCount}/{totalLinks}
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Process Links
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="flex items-center justify-center py-3 px-6 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors disabled:opacity-50 font-medium"
-                disabled={loading}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset
-              </button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Instagram Link Processor
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Extract contact information from Instagram profiles
+              </p>
             </div>
-          </form>
-        </div>
-      </div>
-
-      {result && (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-light text-gray-900 flex items-center">
-              {result.error ? (
-                <>
-                  <AlertCircle className="w-5 h-5 mr-2 text-red-500" />
-                  Processing Failed
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-                  Processing Complete
-                </>
-              )}
-            </h2>
           </div>
+        </div>
 
+        {/* Main Processing Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-6">
-            {result.error ? (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h3 className="text-sm font-medium text-red-800 mb-1">
-                      Error occurred
-                    </h3>
-                    <p className="text-sm text-red-700">{result.error}</p>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Instagram Links
+                </label>
+                <textarea
+                  className="w-full h-40 p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none font-mono placeholder-gray-400 text-black"
+                  placeholder={`https://www.instagram.com/username1/\nhttps://www.instagram.com/username2/`}
+                  value={links}
+                  onChange={(e) => setLinks(e.target.value)}
+                  disabled={loading}
+                />
+                {links && (
+                  <div className="flex items-center text-xs text-gray-500">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    {linkCount} link{linkCount !== 1 ? "s" : ""} detected
                   </div>
-                </div>
+                )}
               </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSubmit}
+                  className="flex-1 flex items-center justify-center py-3 px-6 bg-black text-white rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  disabled={loading || !links.trim()}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing {extractedCount}/{totalLinks}
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Process Links
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="flex items-center justify-center py-3 px-6 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm font-medium"
+                  disabled={loading}
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Card - Only shown after processing is complete */}
+        {result && !loading && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6">
+              {result.error ? (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h3 className="text-sm font-medium text-green-800 mb-1">
-                        Successfully processed
+                      <h3 className="text-sm font-medium text-red-800 mb-1">
+                        Processing Failed
                       </h3>
-                      <p className="text-sm text-green-700">
-                        Your Instagram links have been processed and contact
-                        information extracted.
-                      </p>
+                      <p className="text-sm text-red-700">{result.error}</p>
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    Processed Links
-                  </h3>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-96 overflow-auto">
-                    <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
-                      {JSON.stringify(result.data, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-
-                {downloadUrl && (
-                  <div className="border-t border-gray-200 pt-6">
-                    <div className="flex items-center justify-between">
+              ) : (
+                <div className="space-y-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">
+                        <h3 className="text-sm font-medium text-green-800 mb-1">
+                          Processing Complete
+                        </h3>
+                        <p className="text-sm text-green-700">
+                          Successfully processed {totalLinks} Instagram links
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {result.csv && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        Results
+                      </h3>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto max-h-80">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="px-3 py-2 text-left font-medium text-gray-700 border-r border-gray-200">
+                                  #
+                                </th>
+                                {result.csv
+                                  .split("\n")[0]
+                                  .split(",")
+                                  .map((header: string, idx: number) => (
+                                    <th
+                                      key={idx}
+                                      className="px-3 py-2 text-left font-medium text-gray-700 border-r border-gray-200 last:border-r-0"
+                                    >
+                                      {header}
+                                    </th>
+                                  ))}
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {result.csv
+                                .split("\n")
+                                .slice(1)
+                                .filter(Boolean)
+                                .map((row: string, rowIdx: number) => (
+                                  <tr key={rowIdx} className="hover:bg-gray-50">
+                                    <td className="px-3 py-2 text-gray-600 border-r border-gray-200 font-medium">
+                                      {rowIdx + 1}
+                                    </td>
+                                    {row
+                                      .split(",")
+                                      .map((cell: string, cellIdx: number) => (
+                                        <td
+                                          key={cellIdx}
+                                          className="px-3 py-2 text-gray-900 border-r border-gray-200 last:border-r-0"
+                                        >
+                                          {cell}
+                                        </td>
+                                      ))}
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {downloadUrl && (
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
                           Download Results
                         </h3>
                         <p className="text-sm text-gray-600">
-                          Download the processed data as a CSV file
+                          Get your processed data as CSV
                         </p>
                       </div>
                       <a
                         href={downloadUrl}
-                        className="inline-flex items-center bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                        className="inline-flex items-center bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
                         download
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Download CSV
                       </a>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-3">How to use</h3>
-        <div className="space-y-2 text-sm text-gray-600">
-          <p>
-            • Paste Instagram profile URLs in the text area above, one per line
-          </p>
-          <p>
-            • Click "Process Links" to extract contact information from profiles
-          </p>
-          <p>• Download the results as a CSV file for further analysis</p>
-          <p>
-            • Supported formats: instagram.com/username or
-            instagram.com/username/
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );
