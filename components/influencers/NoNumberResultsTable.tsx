@@ -41,6 +41,12 @@ const NoNumberResultsTable = ({
     fetchCampaigns();
   }, []);
 
+  useEffect(() => {
+    if (!emailsExtracted) {
+      extractEmails();
+    }
+  }, []);
+
   const fetchCampaigns = async () => {
     try {
       const res = await fetch("/api/campaigns");
@@ -148,7 +154,7 @@ const NoNumberResultsTable = ({
 
       setCreators(updatedCreators);
       setEmailsExtracted(true);
-      showToast("✅ Emails extracted successfully");
+      showToast("✅ Emails extracted automatically");
     } catch (error: any) {
       console.error("Email extraction failed:", error);
       showToast("❌ Email extraction failed");
@@ -208,28 +214,24 @@ const NoNumberResultsTable = ({
           {creators.length} Creators Without Contact Number
         </h2>
         <button
-          onClick={emailsExtracted ? addToCampaign : extractEmails}
+          onClick={addToCampaign}
           disabled={
             loading ||
             creators.length === 0 ||
-            (emailsExtracted && campaignSubmitted) ||
-            (emailsExtracted && !selectedCampaign)
+            campaignSubmitted ||
+            !selectedCampaign
           }
           className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 disabled:opacity-50 inline-flex items-center"
         >
           {loading ? (
             <>
               <Loader2 className="animate-spin w-4 h-4 mr-2" />
-              {emailsExtracted ? "Adding..." : "Extracting..."}
+              Adding...
             </>
           ) : (
             <>
               <MailCheck className="w-4 h-4 mr-2" />
-              {emailsExtracted
-                ? campaignSubmitted
-                  ? "Added"
-                  : "Add to Campaign"
-                : "Extract Emails"}
+              {campaignSubmitted ? "Added" : "Add to Campaign"}
             </>
           )}
         </button>
