@@ -58,14 +58,11 @@ const NoNumberResultsTable = ({
 
       const instagramLinks = creators
         .map((c) => {
-          if (c.instagram_link) {
-            return c.instagram_link.trim();
-          }
-          if (c.instagram_username) {
+          if (c.instagram_link) return c.instagram_link.trim();
+          if (c.instagram_username)
             return `https://www.instagram.com/${c.instagram_username
               .replace(/^@/, "")
               .trim()}/`;
-          }
           return null;
         })
         .filter((link): link is string => Boolean(link));
@@ -80,7 +77,8 @@ const NoNumberResultsTable = ({
         batches.push(instagramLinks.slice(i, i + batchSize));
       }
 
-      let csvContent = "";
+      let accumulatedCsv = "";
+      let csvHeaders = "";
 
       for (let i = 0; i < batches.length; i++) {
         const formData = new FormData();
@@ -93,14 +91,27 @@ const NoNumberResultsTable = ({
         });
 
         const data = await resp.json();
-        csvContent = data.cloud_response?.csv_content || csvContent;
+
+        if (data.cloud_response?.csv_content) {
+          const csvLines = data.cloud_response.csv_content.split("\n").filter(Boolean);
+
+          if (i === 0) {
+            csvHeaders = csvLines[0];
+            accumulatedCsv = csvLines.join("\n");
+          } else {
+            const dataLines = csvLines.slice(1);
+            if (dataLines.length > 0) {
+              accumulatedCsv += "\n" + dataLines.join("\n");
+            }
+          }
+        }
       }
 
-      if (!csvContent) {
-        throw new Error("No CSV content found in response.");
+      if (!accumulatedCsv) {
+        throw new Error("No CSV content found.");
       }
 
-      const parsed = Papa.parse(csvContent, {
+      const parsed = Papa.parse(accumulatedCsv, {
         header: true,
         skipEmptyLines: true,
       });
@@ -112,7 +123,6 @@ const NoNumberResultsTable = ({
           .replace(/^@/, "")
           .replace(/\/$/, "")
           .toLowerCase();
-
         const email =
           row["EMAIL"] ||
           row["Email"] ||
